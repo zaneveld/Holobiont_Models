@@ -1,0 +1,63 @@
+Bootstrap: docker 
+From: ubuntu:24.04 
+%environment
+	export SINGULARITY_SHELL=/bin/bash
+	. /mc3/etc/profile.d/conda.sh
+	. ./mc3/etc/profile.d/conda.sh
+%post 
+	#Install basic tools
+	echo "Updating apt"
+	apt -y update 
+	apt -y upgrade
+	echo "Installing basic tools (git, vim, wget, curl)"
+	apt -y install curl git vim wget
+	
+	#Hyphy seems to require a specific version of libcrypto.so.1.1? Installing OpenSSL to get it
+	apt install -y software-properties-common
+	
+	wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.0g-2ubuntu4_amd64.deb
+	dpkg -i libssl1.1_1.1.0g-2ubuntu4_amd64.deb
+	#add-apt-repository ppa:nrbrtx/libssl1
+	#apt update
+	#apt install libssl1.1
+	
+	# create a location inside the container for a miniconda installation
+
+	# from beehive docs, install miniconda
+	echo "Downloading Miniconda"
+	
+	#Note: latest Miniconda uses a glibc version that is incompatible with ubuntu 16.04
+	#easiest solution is to use *slightly* older Miniconda
+	wget https://repo.anaconda.com/miniconda/Miniconda3-py39_25.7.0-2-Linux-x86_64.sh
+
+	echo "Installing Miniconda"
+	bash Miniconda3-py39_25.7.0-2-Linux-x86_64.sh -b -p ./mc3
+	rm Miniconda3-py39_25.7.0-2-Linux-x86_64.sh
+	eval "$(mc3/bin/conda 'shell.bash' 'hook')"
+	conda init bash
+	
+	#Even though mc3 was created in ./, the actual folder
+	#*inside* the apptainer will be in /mc3
+	echo "About to try to source conda.sh (using POSIX-compliant . rather than sh)"
+	. /mc3/etc/profile.d/conda.sh
+
+	echo "Accepting Conda TOS"
+	conda tos accept
+
+	echo "Installing orthofinder and stag"
+	#conda create -n hyphy -c bioconda hyphy
+	conda create -n orthofinder_stag -c bioconda orthofinder stag
+    	conda activate orthofinder_stag
+
+
+	echo "Installing diamond"
+	conda install -c bioconda -c conda-forge diamond=2.1.14
+
+	echo "Installing NCBI datasets"
+	conda config --add channels conda-forge
+	conda config --set channel_priority strict
+	
+	conda install ncbi-datasets-cli
+
+	#Initialize conda
+	echo "source /mc3/etc/profile.d/conda.sh" >> ~/.bashrc  
