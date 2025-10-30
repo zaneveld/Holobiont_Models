@@ -1,3 +1,7 @@
+
+#Temporary directories for large files (only stored locally
+endozoicomonas_tree/output/tmp/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
