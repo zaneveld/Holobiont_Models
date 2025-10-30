@@ -1,6 +1,7 @@
 
 #Temporary directories for large files (only stored locally
-endozoicomonas_tree/output/tmp/
+/analysis/endozoicomonas_tree/output/tmp/
+/analysis/endozoicomonas_tree/apptainers/sifs
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
