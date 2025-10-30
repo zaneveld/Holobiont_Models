@@ -1,13 +1,16 @@
-#Note: taxid 206474 is the taxid for Endozoicomonadaceae (the family level group that includes Endozoicomonas)
+#Activate shell
+salloc -A zaneveld -p compute-bigmem -N 1 -n 2 --mem=10G --time=2:00:00
 
-echo "About to run datasets to generate json lines for Endozoicomonas"
-datasets summary genome taxon 2066474 --as-json-lines --annotated >../output/endozoicomonas_list.jsonl 
+#Activate apptainer
+apptainer shell --bind /gscratch/ /gscratch/zaneveld/jesse/singularity_instances/orthofinder_stag/orthofinder_stag.sif 
 
-echo "About to run dataformat to convert json lines to tsv"
-dataformat tsv genome <../output/endozoicomonas_list.jsonl >../output/endozoicomonas_genomes.tsv
+#Inside apptainer, activate orthofinder stag conda env
+source activate orthofinder_stag
 
-echo "Getting unique genome accessions" 
-python get_unique_accessions.py ../output/endozoicomonas_genomes.tsv ../output/unique_annotated_endozoicomonas_genome_accessions.txt
+#Run orthofinder on a single node
+#orthofinder -f ../output/proteins -o ../output/orthofinder -p /tmp/
 
-echo "Downloading datasets"
-datasets download genome taxon 2066474 --annotated  --include protein --filename ../output/endozoicomonadaceae_proteins.zip
+#Output all 10000+ diamond searches orthofinder needs as a text file
+orthofinder -f ../output/proteins -o ../output/orthofinder -p /tmp/ -op >../output/orthofinder_diamond_commands.txt
+
+#Note: Orthofinder outputs some extra text. Can write python script to trim this in the future. For now we just need to manually delete

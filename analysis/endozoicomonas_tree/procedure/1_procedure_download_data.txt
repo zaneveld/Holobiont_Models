@@ -1,0 +1,20 @@
+# Download Endozoicomonadaceae genomes
+
+## Overview
+This holds the procedure for downloading Endozoicomonas genomes
+
+
+#Note: taxid 206474 is the taxid for Endozoicomonadaceae (the family level group that includes Endozoicomonas)
+
+echo "About to run datasets to generate json lines for Endozoicomonas"
+datasets summary genome taxon 2066474 --as-json-lines --annotated >../output/endozoicomonas_list.jsonl
+
+echo "About to run dataformat to convert json lines to tsv"
+dataformat tsv genome <../output/endozoicomonas_list.jsonl >../output/endozoicomonas_genomes.tsv
+
+echo "Getting unique genome accessions"
+python get_unique_accessions.py ../output/endozoicomonas_genomes.tsv ../output/unique_annotated_endozoicomonas_genome_accessions.txt
+
+echo "Downloading datasets"
+datasets download genome taxon 2066474 --annotated  --include protein --filename ../output/endozoicomonadaceae_proteins.zip
+

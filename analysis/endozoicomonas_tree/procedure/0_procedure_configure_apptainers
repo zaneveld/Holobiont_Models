@@ -1,0 +1,11 @@
+#This procedure covers setting up the needed containers for the project
+#
+echo "Remember to grab a node to work on (cntrl-C to cancel if you're still on the login node). You can use this command \n: salloc -A zaneveld -p compute-bigmem -N 1 -n 2 --mem=10G --time=2:00:00"
+#salloc -A zaneveld -p compute-bigmem -N 1 -n 2 --mem=10G --time=2:00:00
+
+
+echo "Make the OrthoFinder and STAG apptainer instance"
+apptainer build --fakeroot /tmp/orthofinder_stag.sif ../apptainers/defs/orthofinder_stag.def
+
+echo "Move the OrthoFinder STAG .sif file to our apptainers directory"
+cp /tmp/orthofinder_stag.sif ../apptainers/sifs/orthofinder_stag.sif
